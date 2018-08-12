@@ -1,8 +1,11 @@
 (ns hello-api-clojure.server
   (:gen-class) ; for -main method in uberjar
-  (:require [io.pedestal.http :as server]
+  (:require 
+            [io.pedestal.http :as server]
             [io.pedestal.http.route :as route]
-            [hello-api-clojure.service :as service]))
+            [hello-api-clojure.service :as service]
+  )
+)
 
 (defonce runnable-service (server/create-server service/service))
 
