@@ -21,43 +21,23 @@
         (include-css "splendor.css")]
        [:body [:h1 title] content]])))
 
-(defn anti-forgery-field []
-  (f/hidden-field "__anti-forgery-token" *anti-forgery-token*))
-
 (defn index []
   (page "TODO App"
         [:ul
          (for [todo (all-todos)]
-           [:li (link-to (str "/" (:id todo)) (:text todo))])]
-        (f/form-to [:post "/"]
-                   (anti-forgery-field)
-                   (f/text-field "todo")
-                   (f/submit-button "Add"))))
+           [:li (link-to (str "/" (:id todo)) (:text todo))])]))
 
 (defn add-todo [todo]
   (when (not (clojure.string/blank? todo))
     (add-to-mongo! todo))
   (redirect "/"))
 
-(defn show-todo [id]
-  (let [todo (todo-by-id id)]
-    (when todo
-      (page (str "TODO " id)
-            [:h2 (:text todo)]
-            (f/form-to [:delete (str "/" id)]
-                       (anti-forgery-field)
-                       (f/submit-button "Delete"))))))
-
-(defn delete-todo [id]
-  (remove-todo! id)
-  (redirect "/"))
-
 (defroutes app-routes
            (GET  "/" [] (index))
            (POST "/" [todo] (add-todo todo))
-           (GET  "/:id" [id :<< as-int] (show-todo id))
-           (DELETE "/:id" [id :<< as-int] (delete-todo id))
+           (GET  "/:id" [id :<< as-int] ("" id))
+           (DELETE "/:id" [id :<< as-int] ("" id))
            (route/not-found "Not Found"))
 
 (def app
-  (wrap-defaults app-routes site-defaults))
+  (wrap-defaults app-routes (site-defaults [:security :anti-forgery] false)))
